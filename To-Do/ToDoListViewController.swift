@@ -10,14 +10,14 @@ import UIKit
 
 class ToDoListViewController: UITableViewController {
 
-    var itemArray: [String] = []
+    var itemArray: [Item] = []
     let userDefault = UserDefaults.standard
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        if let item = userDefault.array(forKey: "ToDoListArray") as? [String] {
+        if let item = userDefault.array(forKey: "ToDoListArray") as? [Item] {
             itemArray = item
         }
         // Do any additional setup after loading the view, typically from a nib.
@@ -31,7 +31,13 @@ class ToDoListViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "TodoItemCell", for: indexPath)
         
-        cell.textLabel?.text = itemArray[indexPath.row]
+        cell.textLabel?.text = itemArray[indexPath.row].itemName
+        
+        if itemArray[indexPath.row].isChecked == true {
+            cell.accessoryType = .checkmark
+        } else {
+            cell.accessoryType = .none
+        }
         
         return cell
     }
@@ -43,10 +49,12 @@ class ToDoListViewController: UITableViewController {
         if tableView.cellForRow(at: indexPath)?.accessoryType != .checkmark {
             
             tableView.cellForRow(at: indexPath)?.accessoryType = .checkmark
+            itemArray[indexPath.row].isChecked = true
             
         } else {
             
             tableView.cellForRow(at: indexPath)?.accessoryType = .none
+            itemArray[indexPath.row].isChecked = false
         }
         
         
@@ -68,7 +76,11 @@ class ToDoListViewController: UITableViewController {
             (action) in
             
             if textField.text != nil {
-                self.itemArray.append(textField.text!)
+                
+                let newItem = Item()
+                
+                newItem.itemName = textField.text!
+                self.itemArray.append(newItem)
                 self.userDefault.set(self.itemArray, forKey: "ToDoListArray")
             }
             
